@@ -44,10 +44,17 @@
     @apply flex bg-gray-200 py-1 px-3 rounded-md;
   }
 
-  .header-icon {
+  .header-icon-left {
     @apply text-2xl pl-5 pr-2
   }
+
+  .header-icon-center {
+    @apply text-2xl pl-2 pr-2
+  }
   
+  .header-icon-right {
+    @apply text-2xl pl-2 pr-5
+  }
 }
 
 .text-mono {

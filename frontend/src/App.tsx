@@ -7,6 +7,7 @@ import { Header } from "./components/Header";
 import { Home } from "./pages/Home";
 import { FlowList } from "./components/FlowList";
 import { FlowView } from "./pages/FlowView";
+import { GraphView } from "./pages/GraphView";
 
 export const TEXT_FILTER_KEY = "text";
 export const SERVICE_FILTER_KEY = "service";
@@ -27,6 +28,14 @@ function App() {
                   <FlowView />
                 </Suspense>
               }
+            />
+            <Route 
+              path="/graph" 
+              element={
+                <Suspense>
+                  <GraphView />
+                </Suspense>
+              } 
             />
           </Route>
         </Routes>
