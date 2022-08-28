@@ -1,5 +1,5 @@
 import { Service, Flow } from "../api";
-import { Bar } from "react-chartjs-2";
+import { Bar, getElementAtEvent } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,7 +9,10 @@ import {
   Tooltip,
   Legend
 } from "chart.js";
-import { getTimeStuffFromParams } from "../utils";
+import { END_FILTER_KEY, getTimeStuffFromParams, SERVICE_FILTER_KEY, START_FILTER_KEY } from "../utils";
+import { useRef } from "react";
+import { ChartJSOrUndefined } from "react-chartjs-2/dist/types";
+import { useSearchParams } from "react-router-dom";
 
 ChartJS.register(
   CategoryScale,
@@ -63,8 +66,6 @@ export function FlowGraph({ service, flows, ticks }: FlowGraphProps) {
   const labels = ticks.map(tick => `Tick ${tick}`)  
 
   const [flowsIn, flowsOut] = flows
-  // console.log(`FlowsOut: ${flowsOut}`)
-  // console.log(`dataset ${buildDataset(flowsIn, ticks)}`)
   
 
   const data = {
@@ -72,7 +73,6 @@ export function FlowGraph({ service, flows, ticks }: FlowGraphProps) {
     datasets: [
       {
         label: "Flag In",
-        // maybe replace this with count call in the backend
         data: buildDataset(flowsIn, ticks),
         // Hack for some reason Tag::tagToColor doesnt show the correct colors ¯\_(ツ)_/¯
         backgroundColor: "rgba(0, 120, 255, 0.5)"
@@ -84,8 +84,39 @@ export function FlowGraph({ service, flows, ticks }: FlowGraphProps) {
       },
     ]
   }
+  
+  const chartRef = useRef<any>(), startTick = ticks[0];
+  const [ searchParams, setSearchParams ] = useSearchParams();
+  const { setTimeParam } = getTimeStuffFromParams();
+
+  const onClick = (event: any) => {
+    const element = getElementAtEvent(chartRef.current, event);
+    
+    if (element.length === 0) {
+      return
+    }
+    
+    const tick = startTick + element[0].index
+
+    // Sadly cannot change selected tags in FlowList :^(
+    let tag = null
+    switch(element[0].datasetIndex) {
+      case 0:
+        tag = "flag-in"
+        break
+      case 1:
+        tag = "flag-out"
+        break
+    }
+    
+    searchParams.set(SERVICE_FILTER_KEY, service.name);
+    setSearchParams(searchParams)
+
+    setTimeParam(tick.toString(), START_FILTER_KEY);
+    setTimeParam((tick + 1).toString(), END_FILTER_KEY);
+  }
 
   return (
-    <Bar options={options} data={data} />
+    <Bar options={options} data={data} ref={chartRef} onClick={onClick} />
   );
 }

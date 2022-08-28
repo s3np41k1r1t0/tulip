@@ -59,7 +59,7 @@ export function GraphView() {
   }, [start, end])
     
   const graphs = services.filter(service => {
-    const [searchParams, _] = useSearchParams();
+    const [ searchParams ] = useSearchParams();
     return !searchParams.has(SERVICE_FILTER_KEY) || service.name === searchParams.get(SERVICE_FILTER_KEY);
   }).map(service => 
     <Suspense key={service.name}>
