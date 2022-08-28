@@ -1,20 +1,5 @@
 import { useAtom } from "jotai";
-import { atomWithStorage } from "jotai/utils";
-
-const tickLengthInMs = atomWithStorage<number>("tickLengthInMs", 2 * 60 * 1000);
-const ctfStartTime = atomWithStorage<string>(
-  "ctfStartTime2",
-  "2022-07-16T09:00+03:00"
-);
-
-// Abstraction so we can maybe get this data from the server in the future
-export const useCTF = function () {
-  const [tickLength, updateTickLength] = useAtom(tickLengthInMs);
-  const [startDate, updateStartDate] = useAtom(ctfStartTime);
-  console.log(startDate, tickLength);
-
-  return { tickLength, startDate };
-};
+import { tickLengthInMs, ctfStartTime } from "../utils";
 
 function TickLengthSettings() {
   const [tickLength, updateTickLength] = useAtom(tickLengthInMs);

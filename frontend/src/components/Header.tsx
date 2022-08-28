@@ -4,6 +4,7 @@ import { atomWithStorage } from "jotai/utils";
 import { Suspense } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Service, useTulip } from "../api";
+import { getTimeStuffFromParams } from "../utils";
 
 import {
   END_FILTER_KEY,
@@ -11,7 +12,6 @@ import {
   START_FILTER_KEY,
   TEXT_FILTER_KEY,
 } from "../App";
-import { useCTF } from "../pages/Home";
 
 export const showHexAtom = atomWithStorage("showHex", false);
 
@@ -80,73 +80,9 @@ function TextSearch() {
   );
 }
 
-function useMessyTimeStuff() {
-  let [searchParams, setSearchParams] = useSearchParams();
-
-  const { startDate, tickLength } = useCTF();
-
-  function setTimeParam(startTick: string, param: string) {
-    const parsedTick = startTick === "" ? undefined : parseInt(startTick);
-    const unixTime = tickToUnixTime(parsedTick);
-    if (unixTime) {
-      searchParams.set(param, unixTime.toString());
-    } else {
-      searchParams.delete(param);
-    }
-    setSearchParams(searchParams);
-  }
-
-  const startTimeParamUnix = searchParams.get(START_FILTER_KEY);
-  const endTimeParamUnix = searchParams.get(END_FILTER_KEY);
-
-  function unixTimeToTick(unixTime: string | null): number | undefined {
-    if (unixTime === null) {
-      return;
-    }
-    let unixTimeInt = parseInt(unixTime);
-    if (isNaN(unixTimeInt)) {
-      return;
-    }
-    const tick = Math.floor(
-      (unixTimeInt - new Date(startDate).valueOf()) / tickLength
-    );
-
-    return tick;
-  }
-
-  function tickToUnixTime(tick?: number) {
-    if (!tick) {
-      return;
-    }
-    const unixTime = new Date(startDate).valueOf() + tickLength * tick;
-    return unixTime;
-  }
-
-  const startTick = unixTimeToTick(startTimeParamUnix);
-  const endTick = unixTimeToTick(endTimeParamUnix);
-  const currentTick = unixTimeToTick(new Date().valueOf().toString());
-
-  function setToLastnTicks(n: number) {
-    const startTick = (currentTick ?? 0) - n;
-    const endTick = (currentTick ?? 0) + 1; // to be sure
-    setTimeParam(startTick.toString(), START_FILTER_KEY);
-    setTimeParam(endTick.toString(), END_FILTER_KEY);
-  }
-
-  return {
-    unixTimeToTick,
-    startDate,
-    tickLength,
-    setTimeParam,
-    startTick,
-    endTick,
-    currentTick,
-    setToLastnTicks,
-  };
-}
 
 function StartDateSelection() {
-  const { setTimeParam, startTick } = useMessyTimeStuff();
+  const { setTimeParam, startTick } = getTimeStuffFromParams();
 
   return (
     <div>
@@ -164,7 +100,7 @@ function StartDateSelection() {
 }
 
 function EndDateSelection() {
-  const { setTimeParam, endTick } = useMessyTimeStuff();
+  const { setTimeParam, endTick } = getTimeStuffFromParams();
 
   return (
     <div>
@@ -201,14 +137,17 @@ function ShowHexToggle() {
 
 export function Header() {
   let [searchParams] = useSearchParams();
-  const { setToLastnTicks, currentTick } = useMessyTimeStuff();
+  const { setToLastnTicks, currentTick } = getTimeStuffFromParams();
 
   const [lastRefresh, setLastRefresh] = useAtom(lastRefreshAtom);
 
   return (
     <>
       <Link to={`/?${searchParams}`}>
-        <div className="header-icon">🌷</div>
+        <div className="header-icon-left">🌷</div>
+      </Link>
+      <Link to={`/graph?${searchParams}`}>
+        <div className="header-icon-right">📊</div>
       </Link>
       <div>
         <TextSearch></TextSearch>
