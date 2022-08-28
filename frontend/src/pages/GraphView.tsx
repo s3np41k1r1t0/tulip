@@ -2,6 +2,8 @@ import { Flow, useTulip } from "../api";
 import { FlowGraph } from "../components/FlagGraph";
 import { getTimeStuffFromParams } from "../utils";
 import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { SERVICE_FILTER_KEY } from "../utils";
 
 export function GraphView() {
   const { services, getFlows } = useTulip();
@@ -56,17 +58,20 @@ export function GraphView() {
     }
   }, [start, end])
     
-  const graphs = services.map(service => 
-  <Suspense key={service.name}>
-    <FlowGraph 
-      service={service} 
-      ticks={ticks} 
-      flows={[
-        flowsIn.filter(flow => flow.dst_port === service.port), 
-        flowsOut.filter(flow => flow.dst_port === service.port)
-      ]} 
-    />
-  </Suspense>
+  const graphs = services.filter(service => {
+    const [searchParams, _] = useSearchParams();
+    return !searchParams.has(SERVICE_FILTER_KEY) || service.name === searchParams.get(SERVICE_FILTER_KEY);
+  }).map(service => 
+    <Suspense key={service.name}>
+      <FlowGraph 
+        service={service} 
+        ticks={ticks} 
+        flows={[
+          flowsIn.filter(flow => flow.dst_port === service.port), 
+          flowsOut.filter(flow => flow.dst_port === service.port)
+        ]} 
+      />
+    </Suspense>
   )
   
   return (

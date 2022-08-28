@@ -12,7 +12,7 @@ import {
   TEXT_FILTER_KEY,
   START_FILTER_KEY,
   END_FILTER_KEY,
-} from "../App";
+} from "../utils";
 
 import { HeartIcon, FilterIcon } from "@heroicons/react/solid";
 import {

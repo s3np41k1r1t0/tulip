@@ -9,11 +9,6 @@ import { FlowList } from "./components/FlowList";
 import { FlowView } from "./pages/FlowView";
 import { GraphView } from "./pages/GraphView";
 
-export const TEXT_FILTER_KEY = "text";
-export const SERVICE_FILTER_KEY = "service";
-export const START_FILTER_KEY = "start";
-export const END_FILTER_KEY = "end";
-
 function App() {
   return (
     <Provider>

@@ -11,7 +11,7 @@ import {
   SERVICE_FILTER_KEY,
   START_FILTER_KEY,
   TEXT_FILTER_KEY,
-} from "../App";
+} from "../utils";
 
 export const showHexAtom = atomWithStorage("showHex", false);
 

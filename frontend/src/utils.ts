@@ -1,7 +1,12 @@
 import { useSearchParams } from "react-router-dom";
 import { atomWithStorage } from "jotai/utils";
 import { useAtom } from "jotai";
-import { START_FILTER_KEY, END_FILTER_KEY } from "./App";
+
+export const TEXT_FILTER_KEY = "text";
+export const SERVICE_FILTER_KEY = "service";
+export const START_FILTER_KEY = "start";
+export const END_FILTER_KEY = "end";
+
 
 // Do not commit this
 export const tickLengthInMs = atomWithStorage<number>("tickLengthInMs", /*2 * 60 * */ 1000);
