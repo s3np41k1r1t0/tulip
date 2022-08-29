@@ -1,12 +1,11 @@
 import {
   useSearchParams,
   Link,
-  useParams,
-  useNavigate,
+  useParams
 } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
-import { useAtom, useAtomValue } from "jotai";
-import { Flow, FullFlow, useTulip } from "../api";
+import { useAtom } from "jotai";
+import { Flow, useTulip } from "../api";
 import {
   SERVICE_FILTER_KEY,
   TEXT_FILTER_KEY,

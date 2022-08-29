@@ -11,7 +11,6 @@ import {
 } from "chart.js";
 import { END_FILTER_KEY, getTimeStuffFromParams, SERVICE_FILTER_KEY, START_FILTER_KEY } from "../utils";
 import { useRef } from "react";
-import { ChartJSOrUndefined } from "react-chartjs-2/dist/types";
 import { useSearchParams } from "react-router-dom";
 
 ChartJS.register(
