@@ -11,6 +11,10 @@ export function GraphView() {
   const { startTick, endTick, currentTick, tickToUnixTime } = getTimeStuffFromParams();
   let start = startTick ?? 0, end = endTick ?? Number(currentTick);
   
+  if (end < start) {
+    end = start + 20
+  }
+  
   // limit the size to not destroy chrome lmeow
   if (end - start > 20) {
     start = end - 20

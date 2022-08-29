@@ -86,8 +86,8 @@ export function FlowGraph({ service, flows, ticks }: FlowGraphProps) {
   }
   
   const chartRef = useRef<any>(), startTick = ticks[0];
-  const [ searchParams, setSearchParams ] = useSearchParams();
-  const { setTimeParam } = getTimeStuffFromParams();
+  let [ searchParams, setSearchParams ] = useSearchParams();
+  const { tickToUnixTime } = getTimeStuffFromParams();
 
   const onClick = (event: any) => {
     const element = getElementAtEvent(chartRef.current, event);
@@ -109,11 +109,16 @@ export function FlowGraph({ service, flows, ticks }: FlowGraphProps) {
         break
     }
     
+    const utStart = tickToUnixTime(tick), utEnd = tickToUnixTime(tick + 1);
+    
     searchParams.set(SERVICE_FILTER_KEY, service.name);
+    if (utStart) {
+      searchParams.set(START_FILTER_KEY, utStart.toString());
+    }
+    if (utEnd) {
+      searchParams.set(END_FILTER_KEY, utEnd.toString());
+    }
     setSearchParams(searchParams)
-
-    setTimeParam(tick.toString(), START_FILTER_KEY);
-    setTimeParam((tick + 1).toString(), END_FILTER_KEY);
   }
 
   return (
