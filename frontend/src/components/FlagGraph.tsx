@@ -1,4 +1,4 @@
-import { Service, Flow } from "../api";
+import { Service, Flow } from "../types";
 import { Bar, getElementAtEvent } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -9,7 +9,9 @@ import {
   Tooltip,
   Legend
 } from "chart.js";
-import { END_FILTER_KEY, getTimeStuffFromParams, SERVICE_FILTER_KEY, START_FILTER_KEY } from "../utils";
+import { END_FILTER_KEY, SERVICE_FILTER_KEY, START_FILTER_KEY } from "../const";
+import { TICK_REFETCH_INTERVAL_MS } from "../const";
+import { useGetTickInfoQuery } from "../api";
 import { useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -26,27 +28,31 @@ interface FlowGraphProps {
   service: Service
   flows: Flow[][],
   ticks: number[]
-}
+};
 
 export function FlowGraph({ service, flows, ticks }: FlowGraphProps) {
+  // TODO hack
+  const { data: tickInfoData } = useGetTickInfoQuery(undefined, {
+    pollingInterval: TICK_REFETCH_INTERVAL_MS,
+  });
+  
+  const startDate = new Date(tickInfoData?.startDate ?? "1970-01-01T00:00:00Z").valueOf(); 
+  const tickLength = tickInfoData?.tickLength ?? 1000; 
+
   function buildDataset(flows: Flow[], ticks: number[]) {
-    const { tickToUnixTime } = getTimeStuffFromParams();
-    
     if (ticks.length === 0) {
-      return []
+      return [];
     }
     
-    let idx = 1, dataset = Array(ticks.length).fill(0)
-    for(const flow of flows.reverse()) {
-      while (
-        flow.time > Number(tickToUnixTime(ticks[idx])) && 
-        idx <= ticks.length) {
-        idx++;
+    const dataset = Array(ticks.length).fill(0);
+    flows.forEach(flow => {
+      const pos = Math.floor((flow.time - startDate) / tickLength) - ticks[0];
+      if (pos >= 0 && pos < ticks.length) {
+        dataset[pos]++;
       }
-      dataset[idx-1]++;
-    }
+    });
     
-    return dataset
+    return dataset;
   }
 
   const options = {
@@ -62,10 +68,9 @@ export function FlowGraph({ service, flows, ticks }: FlowGraphProps) {
     }
   };
 
-  const labels = ticks.map(tick => `Tick ${tick}`)  
+  const labels = ticks.map(tick => `Tick ${tick}`);  
 
-  const [flowsIn, flowsOut] = flows
-  
+  const [flowsIn, flowsOut] = flows;
 
   const data = {
     labels,
@@ -82,32 +87,24 @@ export function FlowGraph({ service, flows, ticks }: FlowGraphProps) {
         backgroundColor: "rgba(0, 255, 0, 0.5)"
       },
     ]
-  }
+  };
   
   const chartRef = useRef<any>(), startTick = ticks[0];
   let [ searchParams, setSearchParams ] = useSearchParams();
-  const { tickToUnixTime } = getTimeStuffFromParams();
+  
+  function tickToUnixTime(tick: number): number {
+    return startDate + tick * tickLength;
+  }
 
   const onClick = (event: any) => {
     const element = getElementAtEvent(chartRef.current, event);
     
     if (element.length === 0) {
-      return
+      return;
     }
     
-    const tick = startTick + element[0].index
+    const tick = startTick + element[0].index;
 
-    // Sadly cannot change selected tags in FlowList :^(
-    let tag = null
-    switch(element[0].datasetIndex) {
-      case 0:
-        tag = "flag-in"
-        break
-      case 1:
-        tag = "flag-out"
-        break
-    }
-    
     const utStart = tickToUnixTime(tick), utEnd = tickToUnixTime(tick + 1);
     
     searchParams.set(SERVICE_FILTER_KEY, service.name);

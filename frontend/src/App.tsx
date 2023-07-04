@@ -7,6 +7,7 @@ import { Home } from "./pages/Home";
 import { FlowList } from "./components/FlowList";
 import { FlowView } from "./pages/FlowView";
 import { DiffView } from "./pages/DiffView";
+import { GraphView } from "./pages/GraphView";
 import { Corrie } from "./components/Corrie";
 
 function App() {

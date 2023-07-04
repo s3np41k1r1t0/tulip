@@ -1,4 +1,3 @@
-import { format, parse } from "date-fns";
 import { Suspense, useState } from "react";
 import {
   Link,
@@ -6,7 +5,6 @@ import {
   useSearchParams,
   useNavigate,
 } from "react-router-dom";
-import ReactDiffViewer from "react-diff-viewer";
 
 import {
   END_FILTER_KEY,
@@ -19,7 +17,6 @@ import {
   TICK_REFETCH_INTERVAL_MS,
 } from "../const";
 import {
-  useGetFlowQuery,
   useGetServicesQuery,
   useGetTickInfoQuery,
 } from "../api";
@@ -164,7 +161,7 @@ function useMessyTimeStuff() {
 }
 
 function StartDateSelection() {
-  const { setTimeParam, startTick } = getTimeStuffFromParams();
+  const { setTimeParam, startTick } = useMessyTimeStuff();
 
   return (
     <div>
@@ -182,7 +179,7 @@ function StartDateSelection() {
 }
 
 function EndDateSelection() {
-  const { setTimeParam, endTick } = getTimeStuffFromParams();
+  const { setTimeParam, endTick } = useMessyTimeStuff();
 
   return (
     <div>
@@ -275,7 +272,7 @@ function Diff() {
 
 export function Header() {
   let [searchParams] = useSearchParams();
-  const { setToLastnTicks, currentTick } = getTimeStuffFromParams();
+  const { setToLastnTicks, currentTick } = useMessyTimeStuff();
 
   return (
     <>
